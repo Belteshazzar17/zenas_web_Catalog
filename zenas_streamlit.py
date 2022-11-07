@@ -1,16 +1,11 @@
 import streamlit
-import pandas as pd
-import requests
-import snowflake.connector
-from urllib.error import URLError
-
-import streamlit
 import snowflake.connector
 import pandas
+from PIL import Image
+from urllib.request import urlopen
 
 streamlit.title('Zena\'s Amazing Athleisure Catalog')
 # connect to snowflake
-streamlit.stop()
 my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
 my_cur = my_cnx.cursor()
 # run a snowflake query and put it all in a var called my_catalog
@@ -31,11 +26,12 @@ product_caption = 'Our warm, comfortable, ' + option + ' sweatsuit!'
 my_cur.execute("select direct_url, price, size_list, upsell_product_desc from catalog_for_website where
 color_or_style = '" + option + "';")
 df2 = my_cur.fetchone()
-streamlit.image(
-df2[0],
-width=400,
-caption= product_caption
+streamlit.image( 
+  Image.open(urlopen(df2[0][0])), 
+  width = 400, 
+  caption=product_caption 
 )
 streamlit.write('Price: ', df2[1])
 streamlit.write('Sizes Available: ',df2[2])
 streamlit.write(df2[3])
+      
